@@ -1,22 +1,19 @@
 from mysci.readdata import read_data
 from mysci.printing import print_comparison
-from mysci.computation import compute_heatindex
+from mysci.computation import compute_dewpoint
 
-# Column names and column indices to read
-columns = {'date': 0, 'time': 1, 'tempout': 2, 'windspeed': 7,
-           'windchill': 12}
+# Columns names and column indices to read
+columns = {'date':0 , 'time':1, 'tempout':2, 'humout':5, 'dewpt':6}
 
 # Data types for each column (only if non-string)
-types = {'tempout': float, 'windspeed': float, 'windchill': float}
+types = {'tempout':float, 'humout':float, 'dewpt':float}
 
 # Read data from file
 data = read_data(columns, types=types)
 
-
-# Compute the wind chill factor
-windchill = [compute_windchill(t, w) for t, w in zip(data['tempout'], data['windspeed'])]
-
+# Compute the dew point temperature
+dewpointtemp = [compute_dewpoint(t, h) for t, h in zip(data['tempout'], data['humout'])]
 
 # Output comparison of data
-print_comparison(print_comparison('WINDCHILL', data['date'], data['time'], data['windchill'], windchill))
+print_comparison('DEW PT', data['date'], data['time'], data['dewpt'], dewpointtemp)
 

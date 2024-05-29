@@ -1,4 +1,5 @@
 from readdata import read_data
+from printing import print_comparison
 
 # Column names and column indices to read
 columns = {'date': 0, 'time': 1, 'tempout': 2, 'humout': 5, 'heatindex': 13}
@@ -33,10 +34,7 @@ for temp, hum in zip(data['tempout'], data['humout']):
    heatindex.append(compute_heatindex(temp, hum))
 
 # Output comparison of data
-print('                ORIGINAL  COMPUTED')
-print(' DATE    TIME  HEAT INDX HEAT INDX DIFFERENCE')
-print('------- ------ --------- --------- ----------')
-for date, time, hi_orig, hi_comp in zip(data['date'], data['time'], data['heatindex'], heatindex):
-   print(f'{date} {time:>6} {hi_orig:9.6f} {hi_comp:9.6f} {hi_orig-hi_comp:10.6f}')
+print_comparison('HEAT INDX', data['date'], data['time'], data['heatindex'], heatindex)
+
 
 

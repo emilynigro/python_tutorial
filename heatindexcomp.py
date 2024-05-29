@@ -1,10 +1,8 @@
 # Column names and column indices to read
-columns = {'date': 0, 'time': 1, 'tempout': 2, 'windspeed': 7,
-           'windchill': 12}
-
+columns = {'date': 0, 'time': 1, 'tempout': 2, 'humout': 5, 'heatindex': 13}
 
 # Data types for each column (only if non-string)
-types = {'tempout': float, 'windspeed': float, 'windchill': float}
+types = {'tempout': float, 'humout': float, 'heatindex': float}
 
 
 # Initialize my data variable
@@ -29,28 +27,33 @@ with open(filename, 'r') as datafile:
          value = t(split_line[i])
          data[column].append(value)
 
-# Compute the wind chill temperature
-def compute_windchill(t, v):
-   a = 35.74
-   b = 0.6215
-   c = 35.75
-   d = 0.4275
+# Compute the heat index
+def compute_heatindex(t, rh_pct):
+   a = -42.379
+   b = 2.04901523
+   c = 10.14333127
+   d = -0.22475541
+   e = -0.00683783
+   f = -0.05481717
+   g = 0.00122874
+   h = 0.00085282
+   i = -0.00000199
 
-   v2 = v ** 2
-   wci = a + (b * t) - (c * v2) + (d * t * v2)
-   return wci
+   rh = rh_pct / 100
 
-# Compute the wind chill factor
-windchill = []
-for temp, windspeed in zip(data['tempout'], data['windspeed']):
-   windchill.append(compute_windchill(temp, windspeed))
+   hi = a + (b * t) + (c * rh) + (d * t * rh) + (e * t**2) + (f * rh**2) + (g * t**2 * rh) + (h * t * rh**2) + (i * t**2 * rh**2)
+   return hi
+
+# Compute the heat index
+heatindex = []
+for temp, hum in zip(data['tempout'], data['humout']):
+   heatindex.append(compute_heatindex(temp, hum))
 
 # Output comparison of data
 print('                ORIGINAL  COMPUTED')
-print(' DATE    TIME  WINDCHILL WINDCHILL DIFFERENCE')
+print(' DATE    TIME  HEAT INDX HEAT INDX DIFFERENCE')
 print('------- ------ --------- --------- ----------')
-zip_data = zip(data['date'], data['time'], data['windchill'], windchill)
-for date, time, wc_orig, wc_comp in zip_data:
-   wc_diff = wc_orig - wc_comp
-   print(f'{date} {time:>6} {wc_orig:9.6f} {wc_comp:9.6f} {wc_diff:10.6f}')
+for date, time, hi_orig, hi_comp in zip(data['date'], data['time'], data['heatindex'], heatindex):
+   print(f'{date} {time:>6} {hi_orig:9.6f} {hi_comp:9.6f} {hi_orig-hi_comp:10.6f}')
+
 
